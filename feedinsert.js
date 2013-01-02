@@ -4,7 +4,7 @@ var feedparser = require('feedparser'),
 	config = require('./config.js'),
 	host = "127.0.0.1",
 	port = 27017,
-	db = new mongo.Db("news", new mongo.Server(host, port, {}), {safe:false});
+	db = new mongo.Db("newstest", new mongo.Server(host, port, {}), {safe:false});
 
 
 function callback (error, meta, articles){
@@ -25,21 +25,13 @@ function callback (error, meta, articles){
 			    //console.log($('img').first().attr('src') + '\n');
 			    var img = $('img').first().attr('src');
 
-
-				// console.log('source: ' + meta.title);
-				// console.log('meta link: ' + meta.link);
-				// console.log('title: ' + article.title);
-				// console.log('link: ' + article.link);
-				// console.log('summary: ' + article.summary);//discription
-				// console.log('description: ' + article.description);//content
-				// console.log('publish date: ' + article.pubdate);
-				// console.log('guid: ' + article.guid);
-				// console.log('author: ' + article.author);
-				// console.log('comments: ' + article.comments);
-				// console.log('category: ' + "tech");   
-				// console.log('*********************successfully inserted!\n');
+				var id = new mongo.ObjectID();
 			
-				collection.insert({
+				collection.update({
+					pubdate: article.pubdate,
+					guid: article.guid
+				}, {
+					_id: id,
 					source: meta.title,
 					title: article.title,
 					link: article.link,
@@ -51,9 +43,11 @@ function callback (error, meta, articles){
 					comments: article.comments,
 					category: config.category[meta.link],
 					image: img				
+				}, {
+					upsert: true
 				}, function(){
-					console.log(article.guid + " successfully inserted!");					
-				});					
+					console.log(id + " with url=" + article.guid + " successfully inserted or updated!");					
+				});			
 		    });
 			db.close();	
 		});
